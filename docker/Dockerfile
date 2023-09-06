@@ -8,6 +8,7 @@ RUN apt-get install -y sudo git wget
 RUN git clone https://github.com/minhkhoi1026/benchpress.git
 
 WORKDIR /home/benchpress
+RUN echo "test"
 RUN bash requirements.apt
 
 WORKDIR /home/benchpress
