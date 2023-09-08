@@ -2,13 +2,16 @@
 
 function install_apt_deps()
 {
-  echo "-- Do you have sudo rights ?"
-  read is_sudo
+  is_sudo="Y"  # Set the response to "Yes" for having sudo rights
+  python_version="python3.8"  # Set the Python version to install
+
+  # echo "-- Do you have sudo rights ?"
+  # read is_sudo
 
   if [[ $is_sudo == "y" || $is_sudo == "Y" || $is_sudo == "yes" || $is_sudo == "Yes" || $is_sudo == "YES" ]]
   then
     echo "-- Select python version to install. [Default]: python3.8"
-    read python_version
+    # read python_version
     if [[ $python_version == "" ]]
     then
       python_version="python3.8"
@@ -21,7 +24,7 @@ function install_apt_deps()
     fi
     echo "-- Installing all apt dependencies"
     sudo apt-get update
-    sudo apt install software-properties-common net-tools
+    sudo apt install software-properties-common
     sudo add-apt-repository ppa:deadsnakes/ppa
     sudo apt-get update
     export DEBIAN_FRONTEND=noninteractive 
