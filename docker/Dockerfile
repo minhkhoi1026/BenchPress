@@ -14,7 +14,7 @@ RUN bash requirements.apt
 WORKDIR /home/benchpress
 RUN mkdir build
 WORKDIR /home/benchpress/build
-RUN cmake ..
+RUN cmake .. -DBUILD_CLDRIVE=ON
 RUN make -j 12
 
 # Run a simple example
