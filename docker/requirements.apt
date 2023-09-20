@@ -4,6 +4,7 @@ function install_apt_deps()
 {
   is_sudo="Y"  # Set the response to "Yes" for having sudo rights
   python_version="python3.8"  # Set the Python version to install
+  bazel_version="3.0.0"  # Set the Bazel version to install
 
   # echo "-- Do you have sudo rights ?"
   # read is_sudo
@@ -62,6 +63,27 @@ function install_apt_deps()
 
     curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
     $python_version /tmp/get-pip.py
+
+    # Install Bazel
+    # read bazel_version
+    if [[ $bazel_version == "" ]]
+    then
+      bazel_version="3.0.0"
+    elif [[ $bazel_version != "python3.0.0" ]]
+    then
+      echo "-- $bazel_version not supported. Exiting..."
+      exit
+    else
+      echo "-- Selected $bazel_version"
+    fi
+    echo "-- Installing all apt dependencies"
+    sudo apt install apt-transport-https curl gnupg -y
+    curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg
+    sudo mv bazel-archive-keyring.gpg /usr/share/keyrings
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+    sudo apt update && sudo apt install bazel-$bazel_version -y
+    # create a symbolic link to bazel
+    sudo ln -s /usr/bin/bazel-$bazel_version /usr/bin/bazel
   else
     # echo "-- The existence of gcc >= 7 will be checked. If not found, gcc-9 will be installed from source."
     echo "-- You have no sudo rights, which means the following things:"
