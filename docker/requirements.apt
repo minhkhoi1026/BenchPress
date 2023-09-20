@@ -25,7 +25,7 @@ function install_apt_deps()
     fi
     echo "-- Installing all apt dependencies"
     sudo apt-get update
-    sudo apt install software-properties-common
+    sudo apt install software-properties-common net-tools
     sudo add-apt-repository ppa:deadsnakes/ppa
     sudo apt-get update
     export DEBIAN_FRONTEND=noninteractive 
