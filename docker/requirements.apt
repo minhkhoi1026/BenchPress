@@ -69,7 +69,7 @@ function install_apt_deps()
     if [[ $bazel_version == "" ]]
     then
       bazel_version="3.0.0"
-    elif [[ $bazel_version != "python3.0.0" ]]
+    elif [[ $bazel_version != "3.0.0" ]]
     then
       echo "-- $bazel_version not supported. Exiting..."
       exit
