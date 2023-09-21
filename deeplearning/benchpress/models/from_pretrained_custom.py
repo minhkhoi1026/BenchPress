@@ -52,6 +52,8 @@ PRETRAINED_MODELS = {
     }
 }
 
+SAMPLE_DB_NAME = "samples.db"
+
 
 class PreTrainedModel(object):
     """
@@ -213,17 +215,26 @@ class PreTrainedModel(object):
             batch_size,
             temperature,
             self.language_model.config.architecture.max_position_embeddings,
-            sample_db_name="samples.db",
+            sample_db_name=SAMPLE_DB_NAME,
         )
         obs = [sample_observers.InMemorySampleSaver()]
         obs.append(
             sample_observers.SamplesDatabaseObserver(
-                self.language_model.cache.path / "samples" / test_sampler.sample_db_name
+                self.language_model.backend.sample_path
+                / test_sampler.hash
+                / test_sampler.sample_db_name
+            )
+        )
+        obs.append(
+            sample_observers.SaveSampleTextObserver(
+                self.language_model.backend.sample_path / test_sampler.hash / "kernels"
             )
         )
         l.logger().info(
             "Samples are store at {}".format(
-                self.language_model.cache.path / "samples" / test_sampler.sample_db_name
+                self.language_model.backend.sample_path
+                / test_sampler.hash
+                / test_sampler.sample_db_name
             )
         )
         if print_samples:
