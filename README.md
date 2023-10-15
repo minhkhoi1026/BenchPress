@@ -12,6 +12,67 @@ __BenchPress__ is a directed program synthesizer for compiler benchmarks. Using 
 
 ## Quick Start
 
+### Setup docker image
+You can fetch the docker image from `ghcr.io/minhkhoi1026/benchpress/benchpress:latest` 
+```bash
+docker pull ghcr.io/minhkhoi1026/benchpress/benchpress:latest
+docker tags ghcr.io/minhkhoi1026/benchpress/benchpress:latest benchpress
+```
+
+or build it using the `Dockerfile` in `docker` folders:
+```bash
+cd docker
+docker build --tag benchpress --network host --force-rm --no-cache .
+```
+
+### Run image
+You can run the image to start using BenchPress.
+```bash
+docker run -itd --rm --gpus all benchpress
+```
+
+This command run the container with tag `benchpress`, where `-it` options keep the container alive without running process, `-d` run it in detach mode (not be attached to the parent process so that it can work independent). The last option `--gpus all` specify that the container will have the permission to access all gpus in the host computer. Note that gpu option is only available if you have install the nvidia-container-toolkit [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+
+If you pull the image from `ghcr`, it will likely it is the old version, so you will have to run these command **inside the container** to fix the issue:
+```bash
+# install missing packages (ip, tmux, vim)
+apt update && apt upgrade
+apt install net-tools vim net-tools
+
+# reinstall cuda-compiled version of torch
+export BENCHPRESS_BINARY=cmd
+./benchpress -m pip  install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
+```
+
+There might be the lack of the `from_pretrained_custom.py` file in the source code, so you have to copy its content from `deeplearning/benchpress/models/from_pretrained_custom.py` to a same file in docker container:
+```bash
+vim deeplearning/benchpress/models/from_pretrained_custom.py
+<paste the code, save and exit>
+```
+
+### Run a pretrained-model with custom behaviour
+The custom version add the feature to save generated kernels to text file, inside the docker container:
+```
+$: export BENCHPRESS_BINARY=cmd
+$: ./benchpress
+
+>>> from deeplearning.benchpress.models.from_pretrained_custom import PreTrainedModel
+>>> pretrained = PreTrainedModel.FromID("base_opencl")
+>>> BATCH_SIZE = 8 # sample per batch per gpu
+>>> N_GPUS = 4 # change base on the number of GPU in your host
+>>> N_BATCHES = 10000 # number of batch
+>>> # produce N_BATCHS * BATCH_SIZE * N_GPUS kernels
+>>> texts, samples = pretrained.Sample(
+    "kernel void [HOLE]}",
+    batch_size=BATCH_SIZE,
+    num_batches=N_BATCHES,
+    sample_workload_size=N_GPUS,
+    print_samples=False,
+    seed=2610, # change this seed to generate different set of kernels
+)
+```
+
+
 ### Run a pre-trained model
 
 You want to see some __BenchPress__ samples fast ? You can fetch and run a pre-trained model and experiment with your own string prompts.
